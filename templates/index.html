@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Task Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #task-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        #task-list li {
+            background-color: #f4f4f4;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        #task-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        #add-task-btn {
+            padding: 10px;
+            background-color: #555555;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Task Manager</h1>
+    <input type="text" id="task-input" placeholder="Enter a new task">
+    <button id="add-task-btn">Add Task</button>
+    <ul id="task-list"></ul>
+
+    <script>
+        const taskInput = document.getElementById('task-input');
+        const addTaskBtn = document.getElementById('add-task-btn');
+        const taskList = document.getElementById('task-list');
+
+        // Fetch existing tasks
+        fetch('http://localhost:5000/get_tasks')
+            .then(response => response.json())
+            .then(tasks => {
+                tasks.forEach(task => {
+                    const li = document.createElement('li');
+                    li.textContent = task;
+                    taskList.appendChild(li);
+                });
+            });
+
+        // Add new task
+        addTaskBtn.addEventListener('click', () => {
+            const task = taskInput.value.trim();
+            if (task) {
+                fetch('http://localhost:5000/add_task', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ task: task })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const li = document.createElement('li');
+                        li.textContent = task;
+                        taskList.appendChild(li);
+                        taskInput.value = '';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
